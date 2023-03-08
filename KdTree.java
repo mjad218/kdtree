@@ -36,6 +36,17 @@ public class KdTree {
             this.left = n;
         }
 
+        public Point2D point() {
+            return this.point;
+        }
+
+        public Node right() {
+            return this.right;
+        }
+
+        public Node left() {
+            return this.left;
+        }
 
     }
 
@@ -69,8 +80,17 @@ public class KdTree {
     }          // does the set contain point p?
 
     public void draw() {
-        for (Object p : set)
-            ((Point2D) p).draw();
+
+
+    }
+
+    private void draw(Node n) {
+        if (n == null) {
+            return;
+        }
+        n.point().draw();
+        draw(n.right());
+        draw(n.left());
     }
     // draw all points to standard draw
 
