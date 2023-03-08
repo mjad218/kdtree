@@ -22,6 +22,8 @@ public class KdTree {
 
         Node(Point2D point) {
             this.point = point;
+            this.right = null;
+            this.left = null;
         }
 
         void setRight(Node n) {
@@ -86,6 +88,7 @@ public class KdTree {
         // insert algorithm
         if (this.root == null) {
             this.root = new Node(p);
+            System.out.println("null root");
             return;
         }
 
@@ -94,21 +97,25 @@ public class KdTree {
     }
 
     private void insert(Point2D p, Node n) {
-
+        System.out.println("null node");
+        System.out.println(n);
+        if (this.contains(p)) {
+            return;
+        }
         if (p.compareTo(n.point()) == 1) {
             Node node = n.right();
             if (node == null) {
                 Node nodeToBeInserted = new Node(p);
-                node.setRight(nodeToBeInserted);
+                n.setRight(nodeToBeInserted);
                 return;
             }
             insert(p, node);
         }
 
         Node node = n.left();
-        if (node.left() == null) {
+        if (node == null) {
             Node nodeToBeInserted = new Node(p);
-            node.setLeft(nodeToBeInserted);
+            n.setLeft(nodeToBeInserted);
             return;
         }
         insert(p, node);
