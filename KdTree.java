@@ -89,18 +89,46 @@ public class KdTree {
             return;
         }
 
+        this.insert(p, root);
 
     }
 
     private void insert(Point2D p, Node n) {
-        if (n.level() % 2 == 0) {
 
+        if (p.compareTo(n.point()) == 1) {
+            Node node = n.right();
+            if (node == null) {
+                Node nodeToBeInserted = new Node(p);
+                node.setRight(nodeToBeInserted);
+                return;
+            }
+            insert(p, node);
         }
+
+        Node node = n.left();
+        if (node.left() == null) {
+            Node nodeToBeInserted = new Node(p);
+            node.setLeft(nodeToBeInserted);
+            return;
+        }
+        insert(p, node);
     }
     // add the point to the set (if it is not already in the set)
 
     public boolean contains(Point2D p) {
-        return false;
+
+        return this.contains(root, p);
+    }
+
+    private boolean contains(Node root, Point2D point) {
+        if (root != null && root.point().equals(point)) {
+            return true;
+        }
+        if (root.right() != null && point.compareTo(root.right().point()) == 1) {
+            return contains(root.right(), point);
+        }
+        return root.left() != null && contains(root.left(), point);
+
     }
     // does the set contain point p?
 
