@@ -7,9 +7,6 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 
-import java.util.ArrayList;
-import java.util.TreeSet;
-
 public class KdTree {
 
     private Node root;
@@ -17,15 +14,14 @@ public class KdTree {
     private int size = 0;
 
     static class Node {
-        private double x, y;
         private Point2D point;
         private Node right;
+
+        private int level;
         private Node left;
 
         Node(Point2D point) {
             this.point = point;
-            this.x = point.x();
-            this.y = point.y();
         }
 
         void setRight(Node n) {
@@ -34,6 +30,14 @@ public class KdTree {
 
         void setLeft(Node n) {
             this.left = n;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
+
+        public int level() {
+            return this.level;
         }
 
         public Point2D point() {
@@ -48,12 +52,24 @@ public class KdTree {
             return this.left;
         }
 
+
+        public int compareTo(Point2D that) {
+            if (this.level % 2 == 0) {
+                if (this.point.x() == that.x()) {
+                    return 0;
+                }
+                return this.point.x() - that.x() > 0 ? 1 : -1;
+            }
+            if (this.point.y() == that.y()) {
+                return 0;
+            }
+            return this.point.y() - that.y() > 0 ? 1 : -1;
+        }
     }
 
-    private TreeSet set;
 
     public KdTree() {
-        this.set = set;
+        this.root = null;
     }
 
     public boolean isEmpty() {
@@ -67,21 +83,29 @@ public class KdTree {
     // number of points in the set
 
     public void insert(Point2D p) {
-        if (this.set.contains(p)) {
+        // insert algorithm
+        if (this.root == null) {
+            this.root = new Node(p);
             return;
         }
-        this.set.add(p);
 
+
+    }
+
+    private void insert(Point2D p, Node n) {
+        if (n.level() % 2 == 0) {
+
+        }
     }
     // add the point to the set (if it is not already in the set)
 
     public boolean contains(Point2D p) {
-        return this.set.contains(p);
-    }          // does the set contain point p?
+        return false;
+    }
+    // does the set contain point p?
 
     public void draw() {
-
-
+        this.draw(root);
     }
 
     private void draw(Node n) {
@@ -95,25 +119,12 @@ public class KdTree {
     // draw all points to standard draw
 
     public Iterable<Point2D> range(RectHV rect) {
-        ArrayList<Point2D> points = new ArrayList<Point2D>();
-        for (Object p : set)
-            if (rect.contains((Point2D) p)) points.add((Point2D) p);
-        return points;
+        return null;
     }
     // all points that are inside the rectangle (or on the boundary)
 
     public Point2D nearest(Point2D point) {
-        Point2D nearestPoint = null;
-        double smallestDistance = 1000000000;
-        for (Object p : set) {
-            double distance = point.distanceTo((Point2D) p);
-            if (distance < smallestDistance) {
-                nearestPoint = (Point2D) p;
-                smallestDistance = distance;
-            }
-        }
-
-        return nearestPoint;
+        return null;
     }
     // a nearest neighbor in the set to point p; null if the set is empty
 
