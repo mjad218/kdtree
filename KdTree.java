@@ -16,6 +16,7 @@ public class KdTree {
     static class Node {
         private Point2D point;
         private Node right;
+        private Node parent;
 
         private int level;
         private Node left;
@@ -34,12 +35,20 @@ public class KdTree {
             this.left = n;
         }
 
+        void setParent(Node n) {
+            this.parent = n;
+        }
+
         public void setLevel(int level) {
             this.level = level;
         }
 
         public int level() {
             return this.level;
+        }
+
+        public Node parent() {
+            return this.parent;
         }
 
         public Point2D point() {
@@ -54,6 +63,36 @@ public class KdTree {
             return this.left;
         }
 
+        public void draw() {
+            this.point.draw();
+            // RectHV rectHV = new RectHV();
+            Node n = null;
+
+            if (this.parent() != null && this.parent().parent() != null
+            ) {
+                n = this.parent().parent();
+            }
+            if (this.level % 2 == 0) {
+                // vertical line
+                double x = this.point().x();
+                double y1 = this.parent() != null ? this.parent().point().y() : 1;
+
+                double y2 = n != null ? n.point().y() : 1;
+                Point2D p1 = new Point2D(x, y1);
+                Point2D p2 = new Point2D(x, y2);
+                p1.drawTo(p2);
+
+            }
+            double y = this.point().y();
+
+            double x1 = this.parent() != null ? this.parent().point().x() : 1;
+            double x2 = n != null ? n.point().x() : 1;
+            Point2D p1 = new Point2D(x1, y);
+            Point2D p2 = new Point2D(x1, y);
+            p1.drawTo(p2);
+
+
+        }
 
         public int compareTo(Point2D that) {
             if (this.level % 2 == 0) {
@@ -107,6 +146,8 @@ public class KdTree {
             if (node == null) {
                 Node nodeToBeInserted = new Node(p);
                 n.setRight(nodeToBeInserted);
+                nodeToBeInserted.setParent(n);
+                nodeToBeInserted.setLevel(n.level() + 1);
                 return;
             }
             insert(p, node);
@@ -116,6 +157,8 @@ public class KdTree {
         if (node == null) {
             Node nodeToBeInserted = new Node(p);
             n.setLeft(nodeToBeInserted);
+            nodeToBeInserted.setParent(n);
+            nodeToBeInserted.setLevel(n.level() + 1);
             return;
         }
         insert(p, node);
@@ -147,15 +190,20 @@ public class KdTree {
         if (n == null) {
             return;
         }
-        n.point().draw();
+        n.draw();
         draw(n.right());
         draw(n.left());
     }
     // draw all points to standard draw
 
     public Iterable<Point2D> range(RectHV rect) {
+        return this.range(rect, root);
+    }
+
+    private Iterable<Point2D> range(RectHV rect, Node root) {
         return null;
     }
+
     // all points that are inside the rectangle (or on the boundary)
 
     public Point2D nearest(Point2D point) {
