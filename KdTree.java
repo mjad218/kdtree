@@ -157,7 +157,6 @@ public class KdTree {
         }
 
         public void draw() {
-            this.point.draw();
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.setPenRadius(.01);
             this.point.draw();
@@ -209,34 +208,38 @@ public class KdTree {
     // number of points in the set
 
     public void insert(Point2D p) {
-        // insert algorithm
-        if (this.root == null) {
-            this.root = new Node(p);
-            System.out.println("null root");
+        if (this.contains(p)) {
+            System.out.print(p);
+            System.out.print(" Duplicate point \n");
             return;
         }
 
+        if (this.root == null) {
+            this.root = new Node(p);
+            return;
+        }
         this.insert(p, root);
-
     }
 
     private void insert(Point2D p, Node n) {
-        System.out.println("null node");
-        System.out.println(n);
-        if (this.contains(p)) {
-            return;
-        }
+
         this.size++;
-        if (n.compareTo(new Node(p)) > 0) {
+        if (n.compareTo(new Node(p)) < 0) {
             Node node = n.right();
             if (node == null) {
                 Node nodeToBeInserted = new Node(p);
                 n.setRight(nodeToBeInserted);
                 nodeToBeInserted.setParent(n);
                 nodeToBeInserted.setLevel(n.level() + 1);
+                System.out.print(p);
+                System.out.print(" Parent point  ");
+                System.out.print(n.point());
+                System.out.print(" Right \n");
+
                 return;
             }
             insert(p, node);
+            return;
         }
 
         Node node = n.left();
@@ -245,6 +248,11 @@ public class KdTree {
             n.setLeft(nodeToBeInserted);
             nodeToBeInserted.setParent(n);
             nodeToBeInserted.setLevel(n.level() + 1);
+            System.out.print(p);
+            System.out.print(" Parent point ");
+            System.out.print(n.point());
+            System.out.print(" Left \n");
+
             return;
         }
         insert(p, node);
@@ -257,27 +265,22 @@ public class KdTree {
     }
 
     private boolean contains(Node root, Point2D point) {
-
-        if (root != null && root.point().equals(point)) {
-            return true;
-        }
         if (root == null) {
             return false;
         }
-        if (root.compareTo(new Node(point)) < 0) {
-            return contains(root.left(), point);
+        if (root.point().equals(point)) {
+            return true;
         }
 
         if (root.compareTo(new Node(point)) > 0) {
-            return contains(root.right(), point);
+            return contains(root.left(), point);
         }
-
-        return false;
-
+        return contains(root.right(), point);
     }
     // does the set contain point p?
 
     public void draw() {
+        StdDraw.clear();
         this.draw(root);
     }
 
