@@ -9,6 +9,7 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 public class KdTree {
 
@@ -158,6 +159,28 @@ public class KdTree {
             StdDraw.line(p1.x(), p1.y(), p2.x(), p2.y());
         }
 
+        public RectHV rectHV() {
+            if (this.level() % 2 == 0) {
+                // vertical
+                // y1 , y2
+                Point2D[] limits = this.limits();
+                Point2D[] parentLimits = this.parent().limits();
+                double x1 = parentLimits[0].x();
+                double x2 = parentLimits[1].x();
+                double y1 = limits[0].y();
+                double y2 = limits[1].y();
+                return new RectHV(x1, y1, x2, y2);
+
+            }
+            Point2D[] limits = this.limits();
+            Point2D[] parentLimits = this.parent().limits();
+            double x1 = limits[0].x();
+            double x2 = limits[1].x();
+            double y1 = parentLimits[0].y();
+            double y2 = parentLimits[1].y();
+            return new RectHV(x1, y1, x2, y2);
+        }
+
         public int compareTo(Node that) {
             if (this.level % 2 == 0) {
                 if (this.point.x() == that.point().x()) {
@@ -284,20 +307,44 @@ public class KdTree {
     // draw all points to standard draw
 
     public Iterable<Point2D> range(RectHV rect) {
-        return this.range(rect, root);
+        ArrayList<Point2D> points = new ArrayList<>();
+        return this.range(rect, root, points);
     }
 
-    private Iterable<Point2D> range(RectHV rect, Node root) {
+    private Iterable<Point2D> range(RectHV rect, Node root, ArrayList<Point2D> points) {
 
-
-        return null;
+        if (root.rectHV().intersects(rect)) {
+            if (rect.contains(root.point())) {
+                points.add(root.point());
+            }
+            range(rect, root.left(), points);
+            range(rect, root.right(), points);
+        }
+        return points;
     }
 
     // all points that are inside the rectangle (or on the boundary)
 
     public Point2D nearest(Point2D point) {
-        return null;
+        Point2D nearestPoint = new Point2D(1, 1);
+        return nearest(point, this.root, nearestPoint, 1);
     }
+
+    private Point2D nearest(Point2D point, Node root, Point2D nearestPoint,
+                            double smallestDistance) {
+        double distance = root.rectHV().distanceTo(point);
+        if (distance < smallestDistance) {
+            double distanceToRoot = root.point().distanceTo(point);
+            if (distanceToRoot < smallestDistance) {
+                smallestDistance = distanceToRoot;
+                nearestPoint = root.point();
+            }
+            nearest(point, root.right(), nearestPoint, smallestDistance);
+            nearest(point, root.left(), nearestPoint, smallestDistance);
+        }
+        return nearestPoint;
+    }
+
     // a nearest neighbor in the set to point p; null if the set is empty
 
     public static void main(String[] args) {
