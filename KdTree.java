@@ -332,9 +332,17 @@ public class KdTree {
             }
 
             if (root.left() != null && root.left().rectHV().intersects(rect)) {
+                Point2D p = root.left().point();
+                if (rect.contains(p)) {
+                    points.enqueue(p);
+                }
                 range(rect, root.left(), points);
             }
             if (root.right() != null && root.right().rectHV().intersects(rect)) {
+                Point2D p = root.right().point();
+                if (rect.contains(p)) {
+                    points.enqueue(p);
+                }
                 range(rect, root.right(), points);
             }
         }
