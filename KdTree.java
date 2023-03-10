@@ -5,11 +5,11 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
 public class KdTree {
 
@@ -164,40 +164,53 @@ public class KdTree {
                 // vertical
                 // y1 , y2
                 Point2D[] limits = this.limits();
-                Point2D[] parentLimits = this.parent().limits();
-                double x1 = parentLimits[0].x();
-                double x2 = parentLimits[1].x();
-                double y1 = limits[0].y();
-                double y2 = limits[1].y();
+                double x1 = 0;
+                double x2 = 1;
+
+                if (this.parent() != null) {
+                    Point2D[] parentLimits = this.parent().limits();
+                    x1 = Math.min(parentLimits[0].x(), parentLimits[1].x());
+                    x2 = Math.max(parentLimits[0].x(), parentLimits[1].x());
+                }
+                double y1 = Math.min(limits[0].y(), limits[1].y());
+                double y2 = Math.max(limits[0].y(), limits[1].y());
+
                 return new RectHV(x1, y1, x2, y2);
 
             }
             Point2D[] limits = this.limits();
-            Point2D[] parentLimits = this.parent().limits();
-            double x1 = limits[0].x();
-            double x2 = limits[1].x();
-            double y1 = parentLimits[0].y();
-            double y2 = parentLimits[1].y();
+
+            double y1 = 0;
+            double y2 = 1;
+
+            if (this.parent() != null) {
+                Point2D[] parentLimits = this.parent().limits();
+                y1 = Math.min(parentLimits[0].y(), parentLimits[1].y());
+                y2 = Math.max(parentLimits[0].y(), parentLimits[1].y());
+            }
+            double x1 = Math.min(limits[0].x(), limits[1].x());
+            double x2 = Math.max(limits[0].x(), limits[1].x());
+
             return new RectHV(x1, y1, x2, y2);
         }
 
         public int compareTo(Node that) {
             if (this.level % 2 == 0) {
                 if (this.point.x() == that.point().x()) {
-                    // if (this.point.y() == that.point().y()) {
-                    //     return 0;
-                    // }
-                    // return this.point.y() - that.point().y() > 0 ? 1 : -1;
-                    return 0;
+                    if (this.point.y() == that.point().y()) {
+                        return 0;
+                    }
+                    return this.point.y() - that.point().y() > 0 ? 1 : -1;
+                    // return 0;
                 }
                 return this.point.x() - that.point().x() > 0 ? 1 : -1;
             }
             if (this.point.y() == that.point().y()) {
-                // if (this.point.x() == that.point().x()) {
-                //     return 0;
-                // }
-                // return this.point.x() - that.point().x() > 0 ? 1 : -1;
-                return 0;
+                if (this.point.x() == that.point().x()) {
+                    return 0;
+                }
+                return this.point.x() - that.point().x() > 0 ? 1 : -1;
+                // return 0;
 
             }
             return this.point.y() - that.point().y() > 0 ? 1 : -1;
@@ -224,11 +237,8 @@ public class KdTree {
             throw new IllegalArgumentException();
         }
         if (this.contains(p)) {
-            System.out.print(p);
-            System.out.print(" Duplicate point \n");
             return;
         }
-
         this.insert(p, root);
     }
 
@@ -307,18 +317,23 @@ public class KdTree {
         if (rect == null) {
             throw new IllegalArgumentException();
         }
-        ArrayList<Point2D> points = new ArrayList<>();
+        Queue<Point2D> points = new Queue<Point2D>();
+
         return this.range(rect, root, points);
     }
 
-    private Iterable<Point2D> range(RectHV rect, Node root, ArrayList<Point2D> points) {
-
+    private Iterable<Point2D> range(RectHV rect, Node root, Queue<Point2D> points) {
+        if (root == null) {
+            return points;
+        }
         if (root.rectHV().intersects(rect)) {
             if (rect.contains(root.point())) {
-                points.add(root.point());
+                points.enqueue(root.point());
             }
+
             range(rect, root.left(), points);
             range(rect, root.right(), points);
+
         }
         return points;
     }
@@ -335,6 +350,9 @@ public class KdTree {
 
     private Point2D nearest(Point2D point, Node root, Point2D nearestPoint,
                             double smallestDistance) {
+        if (root == null) {
+            return nearestPoint;
+        }
         double distance = root.rectHV().distanceTo(point);
         if (distance < smallestDistance) {
             double distanceToRoot = root.point().distanceTo(point);
@@ -342,8 +360,16 @@ public class KdTree {
                 smallestDistance = distanceToRoot;
                 nearestPoint = root.point();
             }
-            nearest(point, root.right(), nearestPoint, smallestDistance);
-            nearest(point, root.left(), nearestPoint, smallestDistance);
+
+            if (root.left().rectHV().contains(point)) {
+                nearest(point, root.left(), nearestPoint, smallestDistance);
+                nearest(point, root.right(), nearestPoint, smallestDistance);
+            }
+            else {
+                nearest(point, root.right(), nearestPoint, smallestDistance);
+                nearest(point, root.left(), nearestPoint, smallestDistance);
+            }
+
         }
         return nearestPoint;
     }
