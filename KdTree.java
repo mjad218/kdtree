@@ -331,9 +331,12 @@ public class KdTree {
                 points.enqueue(root.point());
             }
 
-            range(rect, root.left(), points);
-            range(rect, root.right(), points);
-
+            if (root.left() != null && root.left().rectHV().intersects(rect)) {
+                range(rect, root.left(), points);
+            }
+            if (root.right() != null && root.right().rectHV().intersects(rect)) {
+                range(rect, root.right(), points);
+            }
         }
         return points;
     }
@@ -351,7 +354,7 @@ public class KdTree {
     private Point2D nearest(Point2D point, Node root, Point2D nearestPoint,
                             double smallestDistance) {
         if (root == null) {
-            return nearestPoint;
+            return null;
         }
         double distance = root.rectHV().distanceTo(point);
         if (distance < smallestDistance) {
@@ -361,7 +364,7 @@ public class KdTree {
                 nearestPoint = root.point();
             }
 
-            if (root.left().rectHV().contains(point)) {
+            if (root.left() != null && root.left().rectHV().contains(point)) {
                 nearest(point, root.left(), nearestPoint, smallestDistance);
                 nearest(point, root.right(), nearestPoint, smallestDistance);
             }
