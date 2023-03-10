@@ -79,8 +79,6 @@ public class KdTree {
                 p1 = new Point2D(x1, y1);
                 p2 = new Point2D(x2, y2);
                 Point2D[] points = { p1, p2 };
-                // this is working properly
-                // WHY The fuck the others are not working?!!
                 return points;
             }
 
@@ -88,72 +86,63 @@ public class KdTree {
                 // vertical line
                 Node parent = this.parent();
                 Point2D[] parentLimits = parent.limits();
-                // (0.2, 0) , (0.2, 1)
-                // (0.5, 0.4)
-                // Y SHOULD BE CONSTANT .4
                 Node grandParent = parent.parent();
-                double y1; // this.parent() != null ? this.parent().point().x() : 1;
-                double y2;// n != null ? n.point().x() : (x1 == 1 ? 0 : 1);
+                double y1;
+                double y2;
                 y1 = parentLimits[0].y();
-
+                y2 = this.point().y() > y1 ? 1 : 0;
                 if (grandParent != null) {
-                    // on the right or the left of the parent
-                    // get the parent of the parent to get the other X!!
                     Point2D[] grandParentLimits = grandParent.limits();
+                    double grandPointLimitsYMin = Math.min(grandParentLimits[0].y(),
+                                                           grandParentLimits[1].y());
+                    double grandPointLimitsYMax = Math.max(grandParentLimits[0].y(),
+                                                           grandParentLimits[1].y());
+                    if (between(this.point().y(), y1, grandPointLimitsYMin)) {
+                        y2 = grandPointLimitsYMin;
+                    }
+                    else if (between(this.point().y(), y1, grandPointLimitsYMax)) {
+                        y2 = grandPointLimitsYMax;
 
-                    y2 = grandParentLimits[0].y();
+                    }
                 }
-                else {
-                    y2 = this.point().y() > parent.point.y() ? 1 : 0;
-                }
-
                 double x = this.point().x();
-
-                // double y = this.point().y();
-
-                // HOW TO GET THE x ?
-
                 p1 = new Point2D(x, y1);
                 p2 = new Point2D(x, y2);
-
                 Point2D[] points = { p1, p2 };
                 return points;
             }
-
             Node parent = this.parent();
-
             Point2D[] parentLimits = parent.limits();
-            // (0.2, 0) , (0.2, 1)
-
-            // (0.5, 0.4)
-            // Y SHOULD BE CONSTANT .4
             Node grandParent = parent.parent();
-            double x1; // this.parent() != null ? this.parent().point().x() : 1;
-            double x2;// n != null ? n.point().x() : (x1 == 1 ? 0 : 1);
+            double x1;
+            double x2;
             x1 = parentLimits[0].x();
-
+            x2 = this.point().x() > x1 ? 1 : 0;
             if (grandParent != null) {
-                // on the right or the left of the parent
-                // get the parent of the parent to get the other X!!
                 Point2D[] grandParentLimits = grandParent.limits();
+                double grandPointLimitsXMin = Math.min(grandParentLimits[0].x(),
+                                                       grandParentLimits[1].x());
+                double grandPointLimitsXMax = Math.max(grandParentLimits[0].x(),
+                                                       grandParentLimits[1].x());
+                if (between(this.point().x(), x1, grandPointLimitsXMin)) {
+                    x2 = grandPointLimitsXMin;
+                }
+                else if (between(this.point().x(), x1, grandPointLimitsXMax)) {
+                    x2 = grandPointLimitsXMax;
 
-                x2 = grandParentLimits[0].x();
+                }
             }
-            else {
-                x2 = this.point().x() > parent.point.x() ? 1 : 0;
-            }
-
-            // double x = this.point().x();
-
             double y = this.point().y();
-
-            // HOW TO GET THE x ?
-
             p1 = new Point2D(x1, y);
             p2 = new Point2D(x2, y);
-
             Point2D[] points = { p1, p2 };
             return points;
+        }
+
+        private boolean between(double value, double l1, double l2) {
+            double min = Math.min(l1, l2);
+            double max = Math.max(l1, l2);
+            return value >= min && value <= max;
         }
 
         public void draw() {
@@ -214,16 +203,16 @@ public class KdTree {
             return;
         }
 
-        if (this.root == null) {
-            this.root = new Node(p);
-            return;
-        }
         this.insert(p, root);
     }
 
     private void insert(Point2D p, Node n) {
 
         this.size++;
+        if (this.root == null) {
+            this.root = new Node(p);
+            return;
+        }
         if (n.compareTo(new Node(p)) < 0) {
             Node node = n.right();
             if (node == null) {
