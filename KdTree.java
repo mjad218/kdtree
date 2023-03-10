@@ -17,7 +17,7 @@ public class KdTree {
 
     private int size = 0;
 
-    static class Node {
+    private static class Node {
         private Point2D point;
         private Node right;
         private Node parent;
@@ -220,6 +220,9 @@ public class KdTree {
     // number of points in the set
 
     public void insert(Point2D p) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
         if (this.contains(p)) {
             System.out.print(p);
             System.out.print(" Duplicate point \n");
@@ -231,9 +234,9 @@ public class KdTree {
 
     private void insert(Point2D p, Node n) {
 
-        this.size++;
         if (this.root == null) {
             this.root = new Node(p);
+            this.size++;
             return;
         }
         if (n.compareTo(new Node(p)) < 0) {
@@ -243,11 +246,7 @@ public class KdTree {
                 n.setRight(nodeToBeInserted);
                 nodeToBeInserted.setParent(n);
                 nodeToBeInserted.setLevel(n.level() + 1);
-                System.out.print(p);
-                System.out.print(" Parent point  ");
-                System.out.print(n.point());
-                System.out.print(" Right \n");
-
+                this.size++;
                 return;
             }
             insert(p, node);
@@ -260,11 +259,7 @@ public class KdTree {
             n.setLeft(nodeToBeInserted);
             nodeToBeInserted.setParent(n);
             nodeToBeInserted.setLevel(n.level() + 1);
-            System.out.print(p);
-            System.out.print(" Parent point ");
-            System.out.print(n.point());
-            System.out.print(" Left \n");
-
+            this.size++;
             return;
         }
         insert(p, node);
@@ -272,7 +267,9 @@ public class KdTree {
     // add the point to the set (if it is not already in the set)
 
     public boolean contains(Point2D p) {
-
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
         return this.contains(root, p);
     }
 
@@ -307,6 +304,9 @@ public class KdTree {
     // draw all points to standard draw
 
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) {
+            throw new IllegalArgumentException();
+        }
         ArrayList<Point2D> points = new ArrayList<>();
         return this.range(rect, root, points);
     }
@@ -326,6 +326,9 @@ public class KdTree {
     // all points that are inside the rectangle (or on the boundary)
 
     public Point2D nearest(Point2D point) {
+        if (point == null) {
+            throw new IllegalArgumentException();
+        }
         Point2D nearestPoint = new Point2D(1, 1);
         return nearest(point, this.root, nearestPoint, 1);
     }
